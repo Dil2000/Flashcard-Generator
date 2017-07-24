@@ -1,8 +1,0 @@
-[
- {
- 	"text" : "George Washington was the first president of the United States.",
- 	"cloze"  : "Washington"
- }
-]
-
-
