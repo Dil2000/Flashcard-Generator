@@ -1,19 +1,21 @@
 	var inquirer = require('inquirer');
 	var fs = require('fs');
-	var cardData = require('./cloze.json')
+	var cardData = require('./cloze.json');
 
-	function ClozeCard(fullText,answer){
+	function clozeCard(fullText,cloze){
 
-		var clozePositions = clozeDelete(fullText,answer);
+		var clozePositions = clozeDelete(fullText,cloze);
 
 		this.partial = getPartial(fullText,clozePositions);
+		console.log("Partial   :     " + this.partial);
 
-		this.answer = answer;
+		this.cloze = cloze;
+		console.log("Cloze     :     " + this.cloze);		               
 
-		function clozeDelete(fullText,answer){
-			var start = fullText.indexOf(answer);
+		function clozeDelete(fullText,cloze){
+			var start = fullText.indexOf(cloze);
 			if(start !== -1){
-				return [start,start + answer.length];
+				return [start,start + cloze.length];
 			}
 			throw new Error("Could not find");
 		}
@@ -25,8 +27,8 @@
 		}
 	}
 
-	ClozeCard.prototype.displayCard = function displayCard(){
-		console.log(this.partial.replace(" . . . ",this.answer));
+	clozeCard.prototype.displayCard = function displayCard(){
+		console.log("Full Text :     "+ this.partial.replace(" . . . ",this.cloze));
 	}
 
 	function createNewCard(){
@@ -36,13 +38,15 @@
 			message:"What is the full text of the flash card you want to make ?"
 		},{
 			type:"input",
-			name:"answer",
-			message:"What is the answer to the flash card ? "
+			name:"cloze",
+			message:"What is the cloze to the flash card ? "
 		}
 		]).then(function(inputs){
-			var card = new ClozeCard(inputs.fullText, inputs.answer);
-			console.log(card);
-			card.displayCard();
+			
+			var card = new clozeCard(inputs.fullText, inputs.cloze);			
+
+			var createdFull = card.displayCard();
+			
 			cardData.push(card);
 			var newCardData = JSON.stringify(cardData, null, 2);
 			fs.writeFile('./cloze.json',newCardData,function(err){
@@ -51,4 +55,7 @@
 			});			
 		});
 	}
+
+	module.exports = clozeCard;
+
 	createNewCard();
