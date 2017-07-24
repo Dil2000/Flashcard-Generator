@@ -1,18 +1,54 @@
-var cloze = function(text,cloze){
+	var inquirer = require('inquirer');
+	var fs = require('fs');
+	var cardData = require('./cloze.json')
 
-	this.front = text;
-	this.cloze = this.text.match(/\(([^)]+)\)/)[1];
-	this.printCloze = function(){
-		console.log(this.cloze);
+	function ClozeCard(fullText,answer){
+
+		var clozePositions = clozeDelete(fullText,answer);
+
+		this.partial = getPartial(fullText,clozePositions);
+
+		this.answer = answer;
+
+		function clozeDelete(fullText,answer){
+			var start = fullText.indexOf(answer);
+			if(start !== -1){
+				return [start,start + answer.length];
+			}
+			throw new Error("Could not find");
+		}
+
+		function getPartial(fullText,clozePositions){
+			var start = fullText.slice(0,clozePositions[0]);
+			var end = fullText.slice(clozePositions[1],fullText.length);
+			return start + " . . . " + end;
+		}
 	}
-	this.printFront = function(){
-		console.log(this.front);
+
+	ClozeCard.prototype.displayCard = function displayCard(){
+		console.log(this.partial.replace(" . . . ",this.answer));
 	}
-	this.message = this.front.replace('(' + this.cloze +')','. . .');
-}
 
-cloze.prototype.printAnswer = function(){
-	console.log('Incorrect, Here is the correct sentence : \n' + this.front.replace(/[{()}]/g, ''));
-}
-
-module.exports = cloze;
+	function createNewCard(){
+		inquirer.prompt([{
+			type:"input",
+			name:"fullText",
+			message:"What is the full text of the flash card you want to make ?"
+		},{
+			type:"input",
+			name:"answer",
+			message:"What is the answer to the flash card ? "
+		}
+		]).then(function(inputs){
+			var card = new ClozeCard(inputs.fullText, inputs.answer);
+			console.log(card);
+			card.displayCard();
+			cardData.push(card);
+			var newCardData = JSON.stringify(cardData, null, 2);
+			fs.writeFile('./cloze.json',newCardData,function(err){
+				if(err)throw err;
+				console.log("Done");
+			});			
+		});
+	}
+	createNewCard();
