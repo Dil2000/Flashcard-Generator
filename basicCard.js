@@ -7,6 +7,8 @@
 	function BasicCard(frontSide,backSide){
 		this.front = frontSide;
 		this.back  = backSide;
+		console.log("Front     :     " + this.front);
+		console.log("Back      :     " + this.back);
 	}
 
 	function createNewCard(){
@@ -25,11 +27,11 @@
 			var newCardData = JSON.stringify(cardData, null, 2);
 			fs.writeFile('./front.json',newCardData,function(err){
 				if(err)throw err;
-				console.log("Done");
+				console.log("Basic Card Done");
 			});			
 		});
 	}
 
 	createNewCard();
 
-
+	module.exports = BasicCard;
